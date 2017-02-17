@@ -119,7 +119,10 @@ public class Counter extends AppCompatActivity {
                         dialog.setColorListener(new ColorListener() {
                             @Override
                             public void OnColorClick(View v, int color) {
-                                String hexColor = String.format("#%06X", (0xFFFFFF & color));
+                                int myColor = -11751600;
+                                if (color == myColor){
+                                    color = Color.parseColor("#28AB31");
+                                }
                                 RelativeLayout layout=(RelativeLayout) findViewById(R.id.activity_counter);
                                 layout.setBackgroundColor(color);
                             }
