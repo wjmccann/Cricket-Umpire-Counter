@@ -63,20 +63,6 @@
         android:layout_marginLeft="14dp"
         android:layout_marginStart="14dp" />
 
-    <TextView
-        android:text="Wickets:"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="35dp"
-        android:id="@+id/textView7"
-        android:textColor="#90D494"
-        android:textSize="30sp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/wicketText"
-        android:layout_alignEnd="@+id/wicketText"
-        android:layout_marginRight="77dp"
-        android:layout_marginEnd="77dp" />
-
     <Button
         android:text="0"
         android:layout_width="wrap_content"
@@ -104,6 +90,18 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Wickets:"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView7"
+        android:textColor="#90D494"
+        android:textSize="30sp"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/wicketText"
+        android:layout_toStartOf="@+id/wicketText"
+        android:layout_marginBottom="12dp" />
 
 </RelativeLayout>
 

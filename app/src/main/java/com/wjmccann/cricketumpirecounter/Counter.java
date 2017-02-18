@@ -10,13 +10,18 @@ import android.os.Vibrator;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -36,6 +41,8 @@ public class Counter extends AppCompatActivity {
     public int myBalls = 0;
     public int overs = 0;
     public int wickets = 0;
+    public int overLimit = 0;
+    public boolean limitOvers = false;
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
 
@@ -88,7 +95,7 @@ public class Counter extends AppCompatActivity {
     }
 
     public void addDrawerItems() {
-        String[] osArray = { "Instructions", "Colours", "Rate Me!", "About" };
+        String[] osArray = { "Instructions","Over Limit", "Colours", "Rate Me!", "About" };
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
         mDrawerList.setAdapter(mAdapter);
 
@@ -100,11 +107,15 @@ public class Counter extends AppCompatActivity {
                     case 0:
                         AlertDialog instrDialog = new AlertDialog.Builder(Counter.this).create();
                         instrDialog.setTitle("Instructions");
-                        instrDialog.setMessage("Tap the Ball number to count balls.\n" +
+                        instrDialog.setMessage(
+                                "Tap the Ball number to count balls.\n" +
                                 "\n" +
                                 "Hold the Ball number to subtract balls.\n" +
                                 "\n" +
-                                "Tap the Wickets number to add wickets.");
+                                "Tap the Wickets number to add wickets. \n" +
+                                "\n" +
+                                "Set the Over Limt to be notified of the end of the innings. Use 20 for T20. Use 0 or blank for unlimited overs.");
+
                         instrDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
@@ -114,6 +125,38 @@ public class Counter extends AppCompatActivity {
                         instrDialog.show();
                         break;
                     case 1:
+                        AlertDialog limitDialog = new AlertDialog.Builder(Counter.this).create();
+                        limitDialog.setTitle("Set Over Limit");
+                        final EditText input = new EditText(Counter.this);
+                        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        input.setText(Integer.toString(overLimit));
+                        input.setGravity(Gravity.CENTER_HORIZONTAL);
+                        limitDialog.setView(input);
+
+                        limitDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        String inputText = input.getText().toString();
+                                        try {
+                                            overLimit = Integer.parseInt(inputText);
+                                            if (overLimit > 0){
+                                                limitOvers = true;
+                                            }
+                                            else {
+                                                limitOvers = false;
+                                            }
+                                        }
+                                        catch (Exception e){
+                                            overLimit = 0;
+                                            limitOvers = false;
+                                        }
+                                        //Toast toasty = Toast.makeText(getApplicationContext(), Integer.toString(overLimit), Toast.LENGTH_LONG);
+                                        //toasty.show();
+                                    }
+                                });
+                        limitDialog.show();
+                        break;
+                    case 2:
                         ColorChooserDialog dialog = new ColorChooserDialog(Counter.this);
                         dialog.setTitle("Choose color");
                         dialog.setColorListener(new ColorListener() {
@@ -130,7 +173,7 @@ public class Counter extends AppCompatActivity {
                         //customize the dialog however you want
                         dialog.show();
                         break;
-                    case 2:
+                    case 3:
                         try {
                             startActivity(new Intent(Intent.ACTION_VIEW,
                                     Uri.parse("market://details?id=com.wjmccann.cricketumpirecounter")));
@@ -139,10 +182,10 @@ public class Counter extends AppCompatActivity {
                                     Uri.parse("http://play.google.com/store/apps/details?id=com.wjmccann.cricketumpirecounter")));
                         }
                         break;
-                    case 3:
+                    case 4:
                         AlertDialog aboutDialog = new AlertDialog.Builder(Counter.this).create();
                         aboutDialog.setTitle("Cricket Umpire Counter");
-                        aboutDialog.setMessage("Version 1.1");
+                        aboutDialog.setMessage("Version 1.2");
                         aboutDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
@@ -185,6 +228,25 @@ public class Counter extends AppCompatActivity {
 
             Toast myToast = Toast.makeText(getApplicationContext(), "End of Over", Toast.LENGTH_LONG);
             myToast.show();
+
+            overLimits();
+        }
+    }
+
+    public void overLimits(){
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        if (limitOvers) {
+            int lastOver = overLimit - overs;
+            if (lastOver == 1) {
+                Toast myToast = Toast.makeText(getApplicationContext(), "Last Over", Toast.LENGTH_LONG);
+                myToast.show();
+            } else if (lastOver == 0) {
+                Toast myToast = Toast.makeText(getApplicationContext(), "End of Innings", Toast.LENGTH_LONG);
+                myToast.show();
+                long pattern[] = {200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200};
+                vibrator.vibrate(pattern, -1);
+            }
         }
     }
 
@@ -200,6 +262,9 @@ public class Counter extends AppCompatActivity {
         if (wickets == 10){
             Toast wToast = Toast.makeText(getApplicationContext(), "End of Innings", Toast.LENGTH_LONG);
             wToast.show();
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            long pattern[] = {200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200, 100, 200};
+            vibrator.vibrate(pattern, -1);
         }
     }
 
